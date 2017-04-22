@@ -11,6 +11,15 @@ private:
   bool debug_; /* Enables debugging output */
 
   /* Add member variables here */
+  double rtt_estimate;
+
+  const double filter = 0.9;
+  const double rtt_threshold = 100;
+
+  double cwnd;
+
+  /* Set the current window size, in datagrams, approximately. */
+  void set_window_size( double );
 
 public:
   /* Public interface for the congestion controller */
@@ -36,6 +45,7 @@ public:
   /* How long to wait (in milliseconds) if there are no acks
      before sending one more datagram */
   unsigned int timeout_ms( void );
+
 };
 
 #endif
