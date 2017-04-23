@@ -7,21 +7,19 @@ using namespace std;
 
 /* Default constructor */
 Controller::Controller( const bool debug )
-  : debug_( debug )
-  , rtt_estimate( 0 )
-  , cwnd ( 50 )
-{
-}
+  : debug_( debug ), cwnd(init_cwnd_size), unacked()
+{}
 
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
+
   if ( debug_ ) {
     cerr << "At time " << timestamp_ms()
 	 << " window size is " << cwnd << endl;
   }
 
-  return cwnd;
+  return cwnd; 
 }
 
 /* A datagram was sent */
@@ -30,8 +28,17 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
 				    const uint64_t send_timestamp )
                                     /* in milliseconds */
 {
-  /* Default: take no action */
-
+  unacked.insert(pair<uint64_t, uint64_t>(send_timestamp, sequence_number));
+  if (send_timestamp > timeout_ms()) {
+    auto it = unacked.upper_bound(pair<uint64_t, uint64_t>(send_timestamp - timeout_ms(), 0));
+    if (it != unacked.begin()) {
+      if ( debug_ ) {
+        cerr << "Window reduced in half" << endl;
+      }
+      unacked.erase(unacked.begin(), it);
+      set_window_size(cwnd * decrease_mult);
+    }
+  }
   if ( debug_ ) {
     cerr << "At time " << send_timestamp
 	 << " sent datagram " << sequence_number << endl;
@@ -48,15 +55,9 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-  /* Default: take no action */
-
-  uint64_t rtt_measure = timestamp_ack_received - send_timestamp_acked;
-  rtt_estimate = filter * rtt_estimate + (1 - filter) * rtt_measure;
-
-  if ( rtt_estimate > 100 )
-    set_window_size ( cwnd - 0.3 );
-  else if ( rtt_estimate < 80 )
-    cwnd += 2/cwnd;// set_window_size ( window_size() + 1 );
+  if (unacked.erase(pair<uint64_t, uint64_t>(send_timestamp_acked, sequence_number_acked))) 
+    /* Additive increase */
+    set_window_size(cwnd + increase_add / cwnd); 
 
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
@@ -71,7 +72,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 350; /* timeout of one second */
+  return 200;
 }
 
 void Controller::set_window_size( double window_size )

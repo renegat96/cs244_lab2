@@ -2,6 +2,7 @@
 #define CONTROLLER_HH
 
 #include <cstdint>
+#include <set>
 
 /* Congestion controller interface */
 
@@ -11,12 +12,17 @@ private:
   bool debug_; /* Enables debugging output */
 
   /* Add member variables here */
-  double rtt_estimate;
 
-  const double filter = 0.9;
-  const double rtt_threshold = 100;
+  const double init_cwnd_size = 20;
+  const double decrease_mult = 0.5;
+  const double increase_add = 1;
 
   double cwnd;
+
+  /* List of packets that have not been acknowledged within a timeout interval.
+        - first - time sent by sender clock (ms).
+        - second - sequence number of the packet. */
+  std::set<std::pair<uint64_t, uint64_t>> unacked;
 
   /* Set the current window size, in datagrams, approximately. */
   void set_window_size( double );
