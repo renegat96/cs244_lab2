@@ -12,8 +12,9 @@ private:
 
   /* Add member variables here */
   double rtt_estimate;
+  double rtt_prop;
 
-  const double filter = 0.9;
+  const double filter = 0.6;
   const double rtt_threshold = 100;
 
   double cwnd;

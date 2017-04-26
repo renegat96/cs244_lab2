@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #include "controller.hh"
 #include "timestamp.hh"
@@ -8,7 +9,8 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , rtt_estimate( 0 )
+  , rtt_estimate( 1000 )
+  , rtt_prop ( 1000 )
   , cwnd ( 50 )
 {
 }
@@ -21,7 +23,7 @@ unsigned int Controller::window_size( void )
 	 << " window size is " << cwnd << endl;
   }
 
-  return cwnd;
+  return round(cwnd);
 }
 
 /* A datagram was sent */
@@ -52,18 +54,25 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 
   uint64_t rtt_measure = timestamp_ack_received - send_timestamp_acked;
   rtt_estimate = filter * rtt_estimate + (1 - filter) * rtt_measure;
+  rtt_prop = min( rtt_prop, (double)rtt_measure );
 
-  if ( rtt_estimate > 100 )
+  if ( rtt_estimate > rtt_prop*2.0 )
     set_window_size ( cwnd - 0.3 );
-  else if ( rtt_estimate < 80 )
-    cwnd += 2/cwnd;// set_window_size ( window_size() + 1 );
+  else if ( rtt_estimate < rtt_prop*1.3 )
+    cwnd += 5/(cwnd);// set_window_size ( window_size() + 1 );
+
+  uint64_t seq = sequence_number_acked + recv_timestamp_acked;
+  (void)seq;
 
   if ( debug_ ) {
-    cerr << "At time " << timestamp_ack_received
-	 << " received ack for datagram " << sequence_number_acked
-	 << " (send @ time " << send_timestamp_acked
-	 << ", received @ time " << recv_timestamp_acked << " by receiver's clock)"
-	 << endl;
+//    cerr << "At time " << timestamp_ack_received
+//	 << " received ack for datagram " << sequence_number_acked
+//	 << " (send @ time " << send_timestamp_acked
+//	 << ", received @ time " << recv_timestamp_acked << " by receiver's clock)"
+//	 << endl;
+    cerr << "Rtt estimate: "
+         << rtt_estimate
+         << endl;
   }
 }
 
@@ -71,7 +80,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 350; /* timeout of one second */
+  return 4 * rtt_estimate;
 }
 
 void Controller::set_window_size( double window_size )
