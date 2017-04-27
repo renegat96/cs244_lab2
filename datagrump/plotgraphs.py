@@ -22,9 +22,17 @@ data = \
   (96, 3.80, "tangra"),
   (104, 3.96, "tangra-1.4"),
   (99, 3.44, "tangra-1.3"),
+ ],
+ [
+  (104, 2.90, "tcpfast-5"),
+  (137, 3.56, "tcpfast-7.5"),
+  (170, 4.01, "tcpfast-10"),
+ ],
+ [
+  (105, 3.57, "aimd-soph"),
  ]
 ]
-colors = ["bo", "ro", "go"]
+colors = ["bo", "ro", "go", "yo", "mo", "co"]
 for results, color in zip(data, colors):
     delays      = map(lambda x: x[0], results)
     throughputs = map(lambda x: x[1], results)
@@ -38,13 +46,3 @@ plt.xlabel('delay(ms)')
 plt.xscale("log")
 plt.gca().invert_xaxis()
 plt.show()
-
-
-
-## SIMPLE AIMD
-## Delay - 186 
-## Throughput - 4.19
-
-## SOPHISTICATED AIMD
-## Delay - 105
-## Throughput - 3.57
