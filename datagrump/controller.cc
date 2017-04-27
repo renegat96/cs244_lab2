@@ -7,7 +7,11 @@ using namespace std;
 
 /* Default constructor */
 Controller::Controller( const bool debug )
-  : debug_( debug ), cwnd(init_cwnd_size), unacked()
+  : debug_( debug )
+  , cwnd( init_cwnd_size )
+  , rt_est( init_rt_est )
+  , rt_min( init_rt_est )
+  , unacked()
 {}
 
 /* Get current window size, in datagrams */
@@ -55,9 +59,17 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       const uint64_t timestamp_ack_received )
                                /* when the ack was received (by sender) */
 {
-  if (unacked.erase(pair<uint64_t, uint64_t>(send_timestamp_acked, sequence_number_acked))) 
+  double rt_measure = timestamp_ack_received - send_timestamp_acked;
+  rt_est = filter_gain * rt_est + ( 1 - filter_gain ) * rt_measure;
+  rt_min = ( rt_min < rt_measure ? rt_min : rt_measure );
+
+  if ( rt_est < rt_min * 1.5 )
+    set_window_size(cwnd + increase_add / cwnd);
+
+  if ( unacked.erase(pair<uint64_t, uint64_t>(send_timestamp_acked, sequence_number_acked)) ) {
     /* Additive increase */
     set_window_size(cwnd + increase_add / cwnd); 
+  }
 
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
@@ -72,7 +84,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 200;
+  return rt_min * rto_gain;
 }
 
 void Controller::set_window_size( double window_size )
