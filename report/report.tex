@@ -87,6 +87,18 @@ ppenkov@stanford.edu}
 
 \section*{Introduction}
 
+This paper aims to explore several congestion control algorithms for networks,
+characterized by highly varying bandwidth. The concrete use case is a two minute
+trace over an emulated Verizon LTE connection. All traffic is UDP, and there are
+no retransmissions in our setup. The setup can be thought of as a voice
+communication. The set of algorithms is a combination of loss and delay-based
+approaches that all aim for simplicity to avoid overfitting to the test trace.
+They include conventional algorithms like AIMD, and TCP Fast, as well as several
+solutions we could not match to a particular existing protocol. We measured
+95-th percentile throughput and signal delay and tried to optimize for their
+ratio. The challenges we face include adaptation to highly varying bandwidth while
+maintaining stable behavior in steady state.
+
 Our code is available at \url{https://github.com/renegat96/cs244_lab2}.
 
 \section*{Part A}
@@ -122,9 +134,11 @@ $${RTT} \leftarrow \alpha {RTT} + \left(1 - \alpha\right)M$$
 
 From this estimate of the current RTT we compute the timeout interval to ßR. We
 used the suggested parameters $\alpha = 0.9$ and $\beta = 2$. While the
-performance of the scheme with a fixed timeout value was consistent [SEE GRAPH
-COLOR], there was a significant bufferbloat in the  latter scheme and it was
-deemed inadequate.
+performance of the scheme with a fixed timeout value was consistent, there was a
+significant bufferbloat in the  latter scheme and it was deemed inadequate. The
+performance of the fixed-timeout scheme can be seen on Figure \ref{fig:all} in green.
+While the performance of this scheme was consistent, it failed to keep the queue
+mostly empty and introduced significant delay.
 
 \section*{Part C}
 
@@ -163,30 +177,33 @@ use $5/cwnd$ as well, but that did not produce a significant improvement.
 
 For our use case we found the simple AIMD scheme lacking in two ways. First, the
 timeout value of 200ms was hardcoded and would be unreasonable in situations
-when just the propagation delay is longer than that. Instead, we set the timeout
-to a multiple of the minimum measured round-trip time $RT_{min}$. We found that
-a delay of $2*RT_{min}$ works well as it implies queuing delay of one minimum
-RTT which is enough to give us feedback while preventing bufferbloat. Second, it
-does not account for very small queuing delay. In this case the sender can
-probably send more packets. To address this we keep a running estimate of the
-RTT via a low pass filter. \cite{jacobson}
+when just the propagation delay is longer than that. In a more sophisticated
+version, we set the timeout to a multiple of the minimum measured round-trip
+time $RT_{min}$. We found that a delay of $2*RT_{min}$ works well as it implies
+queuing delay of one minimum RTT which is enough to give us feedback while
+preventing bufferbloat. Second, it does not account for very small queuing
+delay. In this case the sender can probably send more packets. To address this
+we keep a running estimate of the RTT via a low pass filter. \cite{jacobson}
 
 $${RTT} \leftarrow \alpha {RTT} + \left(1 - \alpha\right)M$$
 
-Here R denotes the current estimate and M is the measurement on the new ACK. We
-use the suggested parameter α = 0.9 to have conservative changes to the current
-estimate. For every ACK that maintains the running estimate drops below
-$1.5*RT_{min}$, we do another step of additive increase, effectively doubling
-the additive increase gain temporarily. Furthermore, to keep the algorithm more
-optimistic, we decrease the multiplicative decrease factor from 2 to 1.5 and
-double the additive increase gain.
+Here ${RTT}$ denotes the current estimate and M is the measurement on the new
+ACK. We use the suggested parameter $\alpha = 0.9$ to have conservative changes
+to the current estimate. For every ACK that maintains the running estimate drops
+below $1.5*RT_{min}$, we do another step of additive increase, effectively
+doubling the additive increase gain temporarily. Furthermore, to keep the
+algorithm more optimistic, we decrease the multiplicative decrease factor from 2
+to 1.5 ( multiply by 0.75 instead of 0.5 ) and double the additive increase gain.
+The results of this scheme were satisfactory, showed both low delay and decent
+utilization of the bottleneck, and can be seen in Figure \ref{fig:all} in
+magenta.
 
 \subsection*{Part D2: TCP Fast}
 
 http://netlab.caltech.edu/publications/FAST-ToN-final-060209-2007.pdf
 
 TCP Fast is a delay-based algorithm that periodically updates the window size
-based on the average RTT \cite{jacobson}. <INSERT UPDATE RULE>.
+based on the average RTT \cite{jacobson}.
 
 $$cwnd \leftarrow (1 - \gamma)* cwnd + \gamma \left(\frac{cwnd * {RT_{min}}}{RTT} + \alpha \right)$$
 
