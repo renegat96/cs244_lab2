@@ -50,7 +50,8 @@
  
 \begin{document}
  
-\title{CS244, Assignment 2}
+\title{CS244, Assignment 2\\TANGRA:\\ Tangra is yet ANother Great Recursive
+Acronym}
 \author{Hristo Stoyanov\\
 stoyanov@stanford.edu\\
 \\
@@ -103,7 +104,18 @@ We experimented with several values of the thresholds, as well as different
 values for the increase and decrease of the windows.
 
 \subsection*{Part C1: changing the thresholds}
+
+We attempted to modify the thresholds to different values. Figure 1 shows some
+of the results we achieved through picking different values for the low and high
+water marks. These include picking 60ms-100ms, 60ms-80ms and 80ms-100ms as
+thresholds. This presents a very clear trade-off between delay and throughput.
+
 \subsection*{Part C2: changing the increase/decrease functions}
+
+Further, we tried to change the increase and decrease functions at each crossing
+of the thresholds. The best results seemed to be by achieved by using additive
+increase and additive decrease. Our increase function was $2/cwnd$. We tried to
+use $5/cwnd$ as well, but that did not produce a significant improvement.
 
 \section*{Part D}
 
@@ -161,7 +173,7 @@ adjustable parameter. Our best results are achieved with = 1.4.
 
 Tangra is yet
 ANother
-Gruesome
+Great
 Recursive
 Acronym
 \end{document}
