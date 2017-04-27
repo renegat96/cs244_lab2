@@ -27,3 +27,4 @@ report/*.bib
 report/*.xml
 report/*.bbl
 report/*.blg
+report/*.out
