@@ -14,8 +14,8 @@ private:
   double rtt_estimate;
   double rtt_prop;
 
-  const double filter = 0.6;
-  const double rtt_threshold = 100;
+  const double filter = 0.7;
+  const double goal_ratio = 1.3;
 
   double cwnd;
 

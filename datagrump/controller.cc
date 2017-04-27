@@ -53,13 +53,23 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
   /* Default: take no action */
 
   uint64_t rtt_measure = timestamp_ack_received - send_timestamp_acked;
-  rtt_estimate = filter * rtt_estimate + (1 - filter) * rtt_measure;
+  double goal = goal_ratio * rtt_prop;
+  double f = 2 * (rtt_measure - goal_ratio) / goal_ratio;
+  f = filter - f * f;
+  f = max(filter/2, f);
+  f = min(f, filter);
+  rtt_estimate = f * rtt_estimate + (1 - f) * rtt_measure;
   rtt_prop = min( rtt_prop, (double)rtt_measure );
 
-  if ( rtt_estimate > rtt_prop*2.0 )
-    set_window_size ( cwnd - 0.3 );
-  else if ( rtt_estimate < rtt_prop*1.3 )
-    cwnd += 5/(cwnd);// set_window_size ( window_size() + 1 );
+  //set_window_size( cwnd + 3 * (1.2*rtt_prop - rtt_estimate) / rtt_prop );
+
+  if ( rtt_estimate > rtt_prop*1.8 )
+    set_window_size ( cwnd - 0.25 * (rtt_estimate - goal) / rtt_prop );
+  else if ( rtt_estimate > rtt_prop*1.6 )
+    set_window_size ( cwnd - 0.15 * (rtt_estimate - goal) / rtt_prop );
+    //set_window_size ( cwnd - 0.2 );
+  else if ( rtt_estimate < goal && rtt_measure < 1.5*rtt_prop)
+    cwnd += 35*(goal - rtt_estimate)/ (goal) / cwnd;
 
   uint64_t seq = sequence_number_acked + recv_timestamp_acked;
   (void)seq;
@@ -80,7 +90,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 4 * rtt_estimate;
+  return 2 * rtt_estimate;
 }
 
 void Controller::set_window_size( double window_size )
