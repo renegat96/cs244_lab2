@@ -11,21 +11,17 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  const double decrease_mult = 0.75;
   const double filter_gain = 0.9;
-  const double increase_add = 2;
   const double init_cwnd_size = 20;
   const double init_rt_est = 100;
   const double rto_gain = 2;
+  const double gamma = 0.8;
+  const double alpha = 5;
 
   double cwnd;
   double rt_est;
   double rt_min;
-
-  /* List of packets that have not been acknowledged within a timeout interval.
-        - first - time sent by sender clock (ms).
-        - second - sequence number of the packet. */
-  std::set<std::pair<uint64_t, uint64_t>> unacked;
+  double next_measure;
 
   /* Set the current window size, in datagrams, approximately. */
   void set_window_size( double );

@@ -11,7 +11,7 @@ Controller::Controller( const bool debug )
   , cwnd( init_cwnd_size )
   , rt_est( init_rt_est )
   , rt_min( init_rt_est )
-  , unacked()
+  , next_measure ( init_rt_est )
 {}
 
 /* Get current window size, in datagrams */
@@ -32,17 +32,9 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
 				    const uint64_t send_timestamp )
                                     /* in milliseconds */
 {
-  unacked.insert(pair<uint64_t, uint64_t>(send_timestamp, sequence_number));
-  if (send_timestamp > timeout_ms()) {
-    auto it = unacked.upper_bound(pair<uint64_t, uint64_t>(send_timestamp - timeout_ms(), 0));
-    if (it != unacked.begin()) {
-      if ( debug_ ) {
-        cerr << "Window reduced in half" << endl;
-      }
-      unacked.erase(unacked.begin(), it);
-      set_window_size(cwnd * decrease_mult);
-    }
-  }
+
+  /* Do Nothing */
+
   if ( debug_ ) {
     cerr << "At time " << send_timestamp
 	 << " sent datagram " << sequence_number << endl;
@@ -63,13 +55,11 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
   rt_est = filter_gain * rt_est + ( 1 - filter_gain ) * rt_measure;
   rt_min = ( rt_min < rt_measure ? rt_min : rt_measure );
 
-  if ( rt_est < rt_min * 1.5 )
-    set_window_size(cwnd + increase_add / cwnd);
-
-  if ( unacked.erase(pair<uint64_t, uint64_t>(send_timestamp_acked, sequence_number_acked)) ) {
-    /* Additive increase */
-    set_window_size(cwnd + increase_add / cwnd); 
+  if ( timestamp_ack_received > next_measure ) {
+    set_window_size( gamma * ( cwnd * rt_min / rt_est + alpha ) + ( 1 - gamma ) * cwnd );
+    next_measure = timestamp_ack_received + rt_min / 2;
   }
+
 
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
