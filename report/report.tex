@@ -71,7 +71,7 @@ value of 1 second. We found that all values give consistent results with small
 noise through multiple runs. Delay and throughput were low for small windows and
 big for large windows. Furthermore, the power score improved while increasing
 the window size to 16, up to a maximum of 12.21, and it then started to
-gradually decline.  The results of our experiment are summarized on Fig. 1.
+gradually decline. The results of our experiment are summarized on Fig. 1.
 
 \section*{Part B}
 
@@ -86,9 +86,10 @@ measurement on every ACK. [REF]
 $${RTT} \leftarrow \alpha {RTT} + \left(1 - \alpha\right)M$$
 
 From this estimate of the current RTT we compute the timeout interval to ßR. We
-used the suggested parameters $\alpha = 0.9$ and $\beta = 2$. While the performance of the
-scheme with a fixed timeout value was consistent [SEE GRAPH COLOR], there was a
-significant bufferbloat in the  latter scheme and it was deemed inadequate.
+used the suggested parameters $\alpha = 0.9$ and $\beta = 2$. While the
+performance of the scheme with a fixed timeout value was consistent [SEE GRAPH
+COLOR], there was a significant bufferbloat in the  latter scheme and it was
+deemed inadequate.
 
 \section*{Part C}
 
@@ -111,20 +112,20 @@ values for the increase and decrease of the windows.
 For our use case we found the simple AIMD scheme lacking in two ways. First, the
 timeout value of 200ms was hardcoded and would be unreasonable in situations
 when just the propagation delay is longer than that. Instead, we set the timeout
-to a multiple of the minimum measured round-trip time $RT_{min}$. We found that a
-delay of $2*RT_{min}$ works well as it implies queuing delay of one minimum RTT which
-is enough to give us feedback while preventing bufferbloat. Second, it does not
-account for very small queuing delay. In this case the sender can probably send
-more packets. To address this we keep a running estimate of the RTT via a low
-pass filter. [REF]. 
+to a multiple of the minimum measured round-trip time $RT_{min}$. We found that
+a delay of $2*RT_{min}$ works well as it implies queuing delay of one minimum
+RTT which is enough to give us feedback while preventing bufferbloat. Second, it
+does not account for very small queuing delay. In this case the sender can
+probably send more packets. To address this we keep a running estimate of the
+RTT via a low pass filter. [REF]. 
 
 $${RTT} \leftarrow \alpha {RTT} + \left(1 - \alpha\right)M$$
 
 Here R denotes the current estimate and M is the measurement on the new ACK. We
 use the suggested parameter α = 0.9 to have conservative changes to the current
 estimate. For every ACK that maintains the running estimate drops below
-$1.5*RT_{min}$, we do another step of additive increase, effectively doubling the
-additive increase gain temporarily. Furthermore, to keep the algorithm more
+$1.5*RT_{min}$, we do another step of additive increase, effectively doubling
+the additive increase gain temporarily. Furthermore, to keep the algorithm more
 optimistic, we decrease the multiplicative decrease factor from 2 to 1.5 and
 double the additive increase gain.
 
