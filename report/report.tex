@@ -6,7 +6,7 @@
  
 \usepackage[margin=1in]{geometry} 
 \usepackage{amsmath,amsthm,amssymb,enumitem,MnSymbol}
-\usepackage{graphicx}
+\usepackage{graphicx,filecontents}
  
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -45,6 +45,29 @@
   \item
 }
 
+\begin{filecontents}{biblio.bib}
+@article{jacobson,
+ author = {Jacobson, V.},
+ title = {Congestion Avoidance and Control},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {August 1988},
+ volume = {18},
+ number = {4},
+ month = aug,
+ year = {1988},
+ issn = {0146-4833},
+ pages = {314--329},
+ numpages = {16},
+ url = {http://doi.acm.org/10.1145/52325.52356},
+ doi = {10.1145/52325.52356},
+ acmid = {52356},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+}
+\end{filecontents}
+
+\usepackage[backend=bibtex]{biblatex} %backend tells biblatex what you will be using to process the bibliography file
+\bibliography{biblio}
 % ------------------------------------------------------------------------------
 % Document
 % ------------------------------------------------------------------------------
@@ -84,13 +107,13 @@ gradually decline. The results of our experiment are summarized on Figure
 \end{figure}
 \section*{Part B}
 
-REF: V. Jacobson and M. J. Karels, Congestion Avoidance and Control, SIGCOMM 1988.
+%REF: V. Jacobson and M. J. Karels, Congestion Avoidance and Control, SIGCOMM 1988.
 
 To capture the variability of link bandwidth, we implemented a simple AIMD
 scheme.  Initially we left the timeout fixed to a hardcoded value of 200
 milliseconds, but later changed it to be a function of an estimated round-trip
 time via a low pass filter, where R is the current estimate and M is the new RTT
-measurement on every ACK. [REF]
+measurement on every ACK. \cite{jacobson}
 
 $${RTT} \leftarrow \alpha {RTT} + \left(1 - \alpha\right)M$$
 
@@ -143,7 +166,7 @@ a delay of $2*RT_{min}$ works well as it implies queuing delay of one minimum
 RTT which is enough to give us feedback while preventing bufferbloat. Second, it
 does not account for very small queuing delay. In this case the sender can
 probably send more packets. To address this we keep a running estimate of the
-RTT via a low pass filter. [REF]. 
+RTT via a low pass filter. \cite{jacobson}
 
 $${RTT} \leftarrow \alpha {RTT} + \left(1 - \alpha\right)M$$
 
@@ -160,7 +183,7 @@ double the additive increase gain.
 http://netlab.caltech.edu/publications/FAST-ToN-final-060209-2007.pdf
 
 TCP Fast is a delay-based algorithm that periodically updates the window size
-based on the average RTT [REF]. <INSERT UPDATE RULE>.
+based on the average RTT \cite{jacobson}. <INSERT UPDATE RULE>.
 
 $$cwnd \leftarrow (1 - \gamma)* cwnd + \gamma \left(\frac{cwnd * {RT_{min}}}{RTT} + \alpha \right)$$
 
@@ -240,5 +263,7 @@ try to hit that target.
 
 Tangra stands for ``Tangra is yet ANother Great Recursive Acronym.'' It also has
 a nice ring to it.
+
+\printbibliography
 
 \end{document}

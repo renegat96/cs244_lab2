@@ -23,3 +23,7 @@ Makefile.in
 *aux
 *log
 report/*.pdf
+report/*.bib
+report/*.xml
+report/*.bbl
+report/*.blg
