@@ -126,8 +126,8 @@ increase and additive decrease. Our increase function was $2/cwnd$. We tried to
 use $5/cwnd$ as well, but that did not produce a significant improvement.
 
 \begin{figure}[h]
- \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_2.eps}
- \caption{}
+ \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_1.eps}
+ \caption{A graph of delay and throughput of different mechanisms.}
  \label{fig:all}
 \end{figure}
 
@@ -206,7 +206,8 @@ In order to estimate the $RTT$, we again use a low pass filter, with $\alpha =
 0.7$. This may seem too aggressive, but we opted to use that after running
 experiments with different values as it provided a trade-off between performance
 on the microbenchmark and stability in a network with variance that in RTT over
-time.
+time. Figure \ref{fig:low-pass-1-4} shows several runs with different low pass
+filters.
 
 \begin{figure}[h]
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_2.eps}
