@@ -63,7 +63,23 @@
  doi = {10.1145/52325.52356},
  acmid = {52356},
  publisher = {ACM},
- address = {New York, NY, USA},
+ address = {New York, NY, USA}
+}
+@article{tcpfast,
+ author = {Wei, D.},
+ title = {FAST TCP: Motivation, Architecture, Algorithms, Performance},
+ journal = {IEEE/ACM Transactions on Networking},
+ issue_date = {December 2006},
+ volume = {14},
+ number = {6},
+ month = dec,
+ year = {2006},
+ issn = {1558-2566},
+ pages = {1246--1259},
+ numpages = {14},
+ url = {http://ieeexplore.ieee.org/document/4032738/},
+ doi = {10.1109/TNET.2006.886335},
+ publisher = {IEEE}
 }
 \end{filecontents}
 
@@ -202,17 +218,17 @@ magenta.
 
 \subsection*{Part D2: TCP Fast}
 
-http://netlab.caltech.edu/publications/FAST-ToN-final-060209-2007.pdf
-
 TCP Fast is a delay-based algorithm that periodically updates the window size
-based on the average RTT \cite{jacobson}.
+based on the average RTT \cite{tcpfast}.
 
 $$cwnd \leftarrow (1 - \gamma)* cwnd + \gamma \left(\frac{cwnd * {RT_{min}}}{RTT} + \alpha \right)$$
 
 The RTT is estimated with the low pass filter function as priorly described, and
 the RTTmin is a moving minimum. Additionally, our implementation does not limit
 window growth to twice the window size to allow for more aggressive adaptation
-to network changes. 
+to network changes. Unfortunately, we found that this algorithm cannot adapt fast
+enough to increasing bandwidth and results in low network utilization. The results
+can be seen in Figure \ref{fig:all} in yellow.
 
 \subsection*{Part D3: TANGRA}
 
