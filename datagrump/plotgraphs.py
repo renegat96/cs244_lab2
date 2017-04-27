@@ -1,16 +1,16 @@
 import matplotlib.pyplot as plt
 data = \
 [
- [
-  (136, 0.22, "fixed1"),
-  (120, 0.44, "fixed2"),
-  (146, 0.83, "fixed4"),
-  (155, 1.57, "fixed8"),
-  (226, 2.76, "fixed16"),
-  (421, 4.03, "fixed32"),
-  (608, 4.55, "fixed50"),
-  (747, 4.65, "fixed64"),
- ],
+ #[
+ # (136, 0.22, "fixed1"),
+ # (120, 0.44, "fixed2"),
+ # (146, 0.83, "fixed4"),
+ # (155, 1.57, "fixed8"),
+ # (226, 2.76, "fixed16"),
+ # (421, 4.03, "fixed32"),
+ # (608, 4.55, "fixed50"),
+ # (747, 4.65, "fixed64"),
+ #],
  [
   (119, 3.04, "rtt-60-80"),
   (121, 3.52, "rtt-60-100-0.5"),
@@ -40,9 +40,9 @@ for results, color in zip(data, colors):
 
     plt.plot(delays, throughputs, color)
     for i in range(len(labels)):
-        plt.annotate(labels[i], xy = (delays[i] - 5, throughputs[i] + 0.01))
+        plt.annotate(labels[i], xy = (delays[i] + 2, throughputs[i] - 0.05))
 plt.ylabel('throughput(Mbits/s)')
 plt.xlabel('delay(ms)')
-plt.xscale("log")
+#plt.xscale("log")
 plt.gca().invert_xaxis()
 plt.show()
