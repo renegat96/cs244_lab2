@@ -6,6 +6,7 @@
  
 \usepackage[margin=1in]{geometry} 
 \usepackage{amsmath,amsthm,amssymb,enumitem,MnSymbol}
+\usepackage{graphicx}
  
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -74,6 +75,12 @@ big for large windows. Furthermore, the power score improved while increasing
 the window size to 16, up to a maximum of 12.21, and it then started to
 gradually decline. The results of our experiment are summarized on Fig. 1.
 
+\begin{figure}
+ \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_2.eps}
+ \caption{}
+ \label{fig:all}
+\end{figure}
+
 \section*{Part B}
 
 REF: V. Jacobson and M. J. Karels, Congestion Avoidance and Control, SIGCOMM 1988.
@@ -119,7 +126,7 @@ use $5/cwnd$ as well, but that did not produce a significant improvement.
 
 \section*{Part D}
 
-\subsection*{PART D1: AIMDSoph}
+\subsection*{Part D1: AIMDSoph}
 
 For our use case we found the simple AIMD scheme lacking in two ways. First, the
 timeout value of 200ms was hardcoded and would be unreasonable in situations
@@ -141,7 +148,7 @@ the additive increase gain temporarily. Furthermore, to keep the algorithm more
 optimistic, we decrease the multiplicative decrease factor from 2 to 1.5 and
 double the additive increase gain.
 
-\subsection*{PART D2: TCP Fast}
+\subsection*{Part D2: TCP Fast}
 
 http://netlab.caltech.edu/publications/FAST-ToN-final-060209-2007.pdf
 
@@ -155,7 +162,7 @@ the RTTmin is a moving minimum. Additionally, our implementation does not limit
 window growth to twice the window size to allow for more aggressive adaptation
 to network changes. 
 
-\subsection*{PART D3: TANGRA}
+\subsection*{Part D3: TANGRA}
 
 We further developed the idea of RTT-threshold based scheme by incorporating two
 more ideas. We first make the assumption that the minimum propagation time does
@@ -166,14 +173,61 @@ control-loop that adjusts the congestion window based on these two assumptions.
 
 The second idea we had was to adjust the congestion window in a way that is
 proportional to the difference between the current RTT estimate and a target
-RTT. We observed that We define our target RTT to be * RTTmin, where α is an
-adjustable parameter. Our best results are achieved with = 1.4.
+RTT. This decision was motivated by the idea that the further away from the
+target the current state of the system is, the bigger the correction we need. We
+define our target as
+$$RTT_{target} \leftarrow t * {RTT}_{min}$$
+where $t$ is an adjustable parameter which specifies how big the queuing delay
+should be relative to the propagation delay. Our best results are achieved with
+$t = 1.4$. In addition, we define $t_{bound}$ and $t_{high}$, as additional
+thresholds which will serve to adjust the congestion window. In our default
+implementation we used $t_{bound} = 1.6$ and $t_{high} = 1.8$.
+
+This results in 4 levels where the RTT estimate may fall:
+\begin{enumerate}
+\item $RTT > t_{high} * RTT_{min}$. The current congestion window is
+overshooting the target and we need to reduce it drastically.
+\item $t_{high}*RTT_{min} >= RTT > t_{bound}*RTT_{min}$. This serves as an
+interval where a smaller reduction to the congestion window is applied.
+\item $t_{bound} *RTT_{min} >= RTT > t * {RTT_{min}}$. If this condition is
+true, the congestion window is not changed.
+\item $t * RTT_{min} > RTT$ implies that the current congestion window is too
+small, and hence, we increase it.
+\end{enumerate}
+
+In order to estimate the $RTT$, we again use a low pass filter, with $\alpha =
+0.7$. This may seem too aggressive, but we opted to use that after running
+experiments with different values as it provided a trade-off between performance
+on the microbenchmark and stability in a network with variance that in RTT over
+time.
+
+\begin{figure}[h]
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_2.eps}
+\caption{Multiple runs of the simulation at $t=1.4$ and different low pass
+$\alpha$ parameters.}
+\label{fig:low-pass-1-4}
+\end{figure}
+
+Although our implementation performs very well on this tiny benchmark, this
+approach to congestion control has several drawbacks. First, it is very unclear
+how several flows will interact with each other. A scenario worth exploring is
+where two or more flows share a bottleneck, yet their respective paths are
+different and the corresponding proportional queues the flows try to maintain
+will be different. This may lead to a much different allocation of the
+bottleneck than would otherwise occur with regular TCP.
+
+Another drawback of this approach is the fact that if the $RTT_{target}$ is set
+too high relative to the available buffer at the bottleneck link, the algorithm
+will likely produce a high loss rate and waste traffic at the links before the
+bottleneck by constantly attempting to increase its congestion window.
+
+Future work may be able to address these problems by creating a mechanism to
+dynamically adjust the target, while using the same idea of proportionality to
+try to hit that target.
 
 \section*{Part E: Naming TANGRA}
 
-Tangra is yet
-ANother
-Great
-Recursive
-Acronym
+Tangra stands for ``Tangra is yet ANother Great Recursive Acronym.'' It also has
+a nice ring to it.
+
 \end{document}
