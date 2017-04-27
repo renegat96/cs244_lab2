@@ -14,7 +14,7 @@ def fixed():
      ],
     ]
     labels = [None]
-    return data, labels, 0, 0
+    return data, labels, 9, -0.15
 
 def all_mechanisms():
     data = \
@@ -81,7 +81,7 @@ def low_pass_at_1_4():
     labels = ['Low-pass at 0.5', 'Low-pass at 0.6', 'Low-pass at 0.7', 'Low-pass at 0.8', 'Low-pass at 0.9']
     return data, labels, 0, 0
 
-data, labels, xanon, yanon = all_mechanisms()
+data, labels, xanon, yanon = fixed()
 
 colors = ["bo", "ro", "go", "yo", "mo", "co"]
 

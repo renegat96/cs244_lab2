@@ -73,14 +73,15 @@ value of 1 second. We found that all values give consistent results with small
 noise through multiple runs. Delay and throughput were low for small windows and
 big for large windows. Furthermore, the power score improved while increasing
 the window size to 16, up to a maximum of 12.21, and it then started to
-gradually decline. The results of our experiment are summarized on Fig. 1.
+gradually decline. The results of our experiment are summarized on Figure
+\ref{fig:fixed}.
 
-\begin{figure}
- \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_2.eps}
- \caption{}
- \label{fig:all}
+\begin{figure}[h]
+ \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_fixed.eps}
+ \caption{A graph of how throughput and delay change as we increase a fixed
+ congestion window from 1 to 64 at every power of 2.}
+ \label{fig:fixed}
 \end{figure}
-
 \section*{Part B}
 
 REF: V. Jacobson and M. J. Karels, Congestion Avoidance and Control, SIGCOMM 1988.
@@ -123,6 +124,12 @@ Further, we tried to change the increase and decrease functions at each crossing
 of the thresholds. The best results seemed to be by achieved by using additive
 increase and additive decrease. Our increase function was $2/cwnd$. We tried to
 use $5/cwnd$ as well, but that did not produce a significant improvement.
+
+\begin{figure}[h]
+ \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{figure_2.eps}
+ \caption{}
+ \label{fig:all}
+\end{figure}
 
 \section*{Part D}
 
@@ -207,6 +214,9 @@ time.
 $\alpha$ parameters.}
 \label{fig:low-pass-1-4}
 \end{figure}
+
+The best score our implementation achieved was $40.74$ at a throughput of $3.83$
+Mbps and 95\textsuperscript{th} percentile signal delay of $94$ ms.
 
 Although our implementation performs very well on this tiny benchmark, this
 approach to congestion control has several drawbacks. First, it is very unclear
