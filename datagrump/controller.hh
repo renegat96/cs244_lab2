@@ -15,7 +15,7 @@ private:
   double rtt_prop;
 
   const double filter = 0.7;
-  const double goal_ratio = 1.3;
+  const double goal_ratio = 1.4;
 
   double cwnd;
 

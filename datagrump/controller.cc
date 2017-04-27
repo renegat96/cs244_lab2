@@ -53,13 +53,13 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
   /* Default: take no action */
 
   uint64_t rtt_measure = timestamp_ack_received - send_timestamp_acked;
-  double goal = goal_ratio * rtt_prop;
   double f = 2 * (rtt_measure - goal_ratio) / goal_ratio;
   f = filter - f * f;
   f = max(filter/2, f);
   f = min(f, filter);
   rtt_estimate = f * rtt_estimate + (1 - f) * rtt_measure;
   rtt_prop = min( rtt_prop, (double)rtt_measure );
+  double goal = goal_ratio * rtt_prop;
 
   //set_window_size( cwnd + 3 * (1.2*rtt_prop - rtt_estimate) / rtt_prop );
 
